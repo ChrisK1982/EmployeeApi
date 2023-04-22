@@ -12,14 +12,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @WebMvcTest
 @AutoConfigureMockMvc
-@WithMockUser(username = "test", password = "test", roles = ["USER"])
 class EmployeeApiApplicationTests(@Autowired val mockMvc: MockMvc) {
 
     @Test
+    @WithMockUser(username = "test", password = "test", roles = ["USER"])
     fun `When the root endpoint is called, then the api responds with 'OK'`() {
-        mockMvc.perform(get("/"))
+        mockMvc.perform(get("/api"))
                 .andExpect(status().isOk)
                 .andExpect(content().string("OK"))
     }
 
+    @Test
+    fun `When the api is called without an included user, then the api responds with an 401 Unauthorized Response`() {
+        mockMvc.perform(get("/api"))
+                .andExpect(status().isUnauthorized)
+    }
 }
