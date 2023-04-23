@@ -15,11 +15,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class EmployeeApiApplicationTests(@Autowired val mockMvc: MockMvc) {
 
     @Test
-    @WithMockUser(username = "test", password = "test", roles = ["USER"])
-    fun `When the root endpoint is called, then the api responds with 'OK'`() {
+    @WithMockUser(username = "user", password = "password", roles = ["EmployeeAPIUser"])
+    fun `When the root endpoint is called with valid user credentials, then the api responds with 'OK'`() {
         mockMvc.perform(get("/api"))
             .andExpect(status().isOk)
             .andExpect(content().string("OK"))
+    }
+
+    @Test
+    @WithMockUser(username = "user", password = "password", roles = ["InvalidAPIUser"])
+    fun `When the root endpoint is called with invalid user role, then the api responds with 'Forbidden'`() {
+        mockMvc.perform(get("/api"))
+            .andExpect(status().isForbidden)
     }
 
     @Test

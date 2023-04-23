@@ -1,6 +1,7 @@
 api:
   basicAuthUsername: "user"
   basicAuthPassword: "password"
+  basicAuthRole: "EmployeeAPIUser"
 server:
   port: 8080
 spring:

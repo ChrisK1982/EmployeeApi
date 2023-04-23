@@ -19,7 +19,7 @@ class EmployeeAPISecurityConfig(val apiConfiguration: EmployeeAPIConfiguration) 
         httpSecurity
             .csrf().disable()
             .authorizeHttpRequests()
-            .requestMatchers("/api/**").hasRole("EmployeeAPIUser")
+            .requestMatchers("/api/**").hasRole(apiConfiguration.basicAuthRole)
             .anyRequest()
             .authenticated()
             .and()
