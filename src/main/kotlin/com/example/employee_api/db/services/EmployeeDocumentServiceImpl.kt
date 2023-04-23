@@ -62,12 +62,16 @@ class EmployeeDocumentServiceImpl @Autowired constructor(
     }
 
     @Throws(ServiceException::class)
-    override fun deleteById(id: Long) {
+    override fun deleteById(id: Long): EmployeeDocumentsEntity? {
         try {
+            val originalDocument = repository.findById(id)
+                .orElseThrow { EntityNotFoundException(MESSAGE_NOT_FOUND + id) }
             repository.deleteById(id)
+            return originalDocument
         } catch (e: Exception) {
             logAndThrowServiceException("An error occurred while deleting an employee by ID: $id", e)
         }
+        return null
     }
 
     @Throws(ServiceException::class)

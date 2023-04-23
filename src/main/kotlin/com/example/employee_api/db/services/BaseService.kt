@@ -21,5 +21,5 @@ interface BaseService<E : BaseEntity> : Serializable {
     fun findAll(): MutableList<E>?
 
     @Throws(EntityNotFoundException::class, DataIntegrityViolationException::class)
-    fun deleteById(id: Long)
+    fun deleteById(id: Long): E?
 }
