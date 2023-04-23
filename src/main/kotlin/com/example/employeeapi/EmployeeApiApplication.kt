@@ -1,24 +1,38 @@
 package com.example.employeeapi
 
+import com.example.employeeapi.dto.Employee
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@SpringBootApplication(exclude = [ DataSourceAutoConfiguration::class ])
 @RequestMapping("/api")
 @ConfigurationPropertiesScan
+@SpringBootApplication
+@EntityScan("com.example.employeeapi.db.entities")
 class EmployeeApiApplication {
 
-	@RequestMapping
-	fun rootHandler(): String {
-		return "OK";
-	}
-}
+    @GetMapping
+    fun rootHandler(): String {
+        return "OK";
+    }
 
-fun main(args: Array<String>) {
-	runApplication<EmployeeApiApplication>(*args)
+    @PostMapping("/employees/info/update")
+    fun batchEmployeesUpdate(@RequestBody employees: List<Employee>) {
+
+    }
+
+    @PostMapping("/employees/documents/upload")
+    fun batchDocumentUpload(@RequestBody employees: List<Employee>) {
+
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            runApplication<EmployeeApiApplication>(*args)
+        }
+    }
 }
