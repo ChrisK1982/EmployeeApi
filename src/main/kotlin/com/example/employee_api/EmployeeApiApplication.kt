@@ -1,19 +1,17 @@
 package com.example.employee_api
 
-import com.example.employee_api.db.entities.EmployeeDocumentsEntity
-import com.example.employee_api.db.entities.EmployeeEntity
-import com.example.employee_api.db.services.EmployeeDocumentServiceImpl
-import com.example.employee_api.db.services.EmployeeServiceImpl
-import org.slf4j.LoggerFactory
+import com.example.employee_api.routers.EmployeeDocumentRouter
+import com.example.employee_api.routers.EmployeeRouter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
-import org.springframework.boot.json.GsonJsonParser
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.http.server.ServerHttpRequest
+import org.springframework.http.server.ServletServerHttpRequest
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.function.ServerRequest
+import java.util.*
 
 @RestController
 @RequestMapping("/api")
@@ -21,8 +19,8 @@ import org.springframework.web.bind.annotation.*
 @SpringBootApplication
 @EntityScan("com.example.employee_api.db.entities")
 class EmployeeApiApplication @Autowired constructor(
-    val employeeServiceImpl: EmployeeServiceImpl,
-    val employeeDocumentServiceImpl: EmployeeDocumentServiceImpl
+    private val employeeRouter: EmployeeRouter,
+    private val employeeDocumentRouter: EmployeeDocumentRouter,
 ) {
 
     companion object {
@@ -30,8 +28,22 @@ class EmployeeApiApplication @Autowired constructor(
         fun main(args: Array<String>) {
             runApplication<EmployeeApiApplication>(*args)
         }
+    }
 
-        val logger = LoggerFactory.getLogger(EmployeeApiApplication::class.java)
+    @RequestMapping(path = ["/employees/**"])
+    fun employeesApiHandler(request: ServerHttpRequest) {
+        return employeeRouter
+            .routes()
+            .route(request as ServerRequest)
+            .ifPresent { handler -> handler.handle(request) }
+    }
+
+    @RequestMapping(path = ["/documents/**"])
+    fun employeesDocumentsApiHandler(request: ServerHttpRequest) {
+        return employeeDocumentRouter
+            .routes()
+            .route(request as ServerRequest)
+            .ifPresent { handler -> handler.handle(request) }
     }
 
     @GetMapping
@@ -39,56 +51,4 @@ class EmployeeApiApplication @Autowired constructor(
         return "OK";
     }
 
-    @GetMapping("/employees")
-    fun getAllEmployees(): MutableList<EmployeeEntity>? {
-        return employeeServiceImpl.findAll()
-    }
-
-    @GetMapping("/employees/{id}")
-    fun getEmployeeById(@PathVariable("id") id: Long): EmployeeEntity? {
-        return employeeServiceImpl.findById(id)
-    }
-
-    @PostMapping("/employees/create")
-    fun createEmployee(@RequestBody employee: EmployeeEntity): EmployeeEntity? {
-        return employeeServiceImpl.create(employee)
-    }
-
-    @PutMapping("/employees/update/{id}")
-    fun updateEmployee(@PathVariable("id") id: Long, @RequestBody employee: EmployeeEntity): EmployeeEntity? {
-        return employeeServiceImpl.update(id, employee)
-    }
-
-    @DeleteMapping("/employees/{id}")
-    fun deleteEmployee(@PathVariable("id") id: Long): EmployeeEntity? {
-        return employeeServiceImpl.deleteById(id)
-    }
-
-    @GetMapping("/documents")
-    fun getAllEmployeeDocuments(): MutableList<EmployeeDocumentsEntity>? {
-        return employeeDocumentServiceImpl.findAll()
-    }
-
-    @GetMapping("/documents/{id}")
-    fun getEmployeeDocumentsById(@PathVariable("id") id: Long): EmployeeDocumentsEntity? {
-        return employeeDocumentServiceImpl.findById(id)
-    }
-
-    @PostMapping("/documents/create")
-    fun createEmployeeDocuments(@RequestBody employee: EmployeeDocumentsEntity): EmployeeDocumentsEntity? {
-        return employeeDocumentServiceImpl.create(employee)
-    }
-
-    @PutMapping("/documents/update/{id}")
-    fun updateEmployeeDocuments(
-        @PathVariable("id") id: Long,
-        @RequestBody employee: EmployeeDocumentsEntity
-    ): EmployeeDocumentsEntity? {
-        return employeeDocumentServiceImpl.update(id, employee)
-    }
-
-    @DeleteMapping("/documents/{id}")
-    fun deleteEmployeeDocuments(@PathVariable("id") id: Long): EmployeeDocumentsEntity? {
-        return employeeDocumentServiceImpl.deleteById(id)
-    }
 }

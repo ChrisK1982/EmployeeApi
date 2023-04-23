@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class EmployeeDocumentServiceImpl @Autowired constructor(
-        private val repository: EmployeeDocumentsRepository
+    private val repository: EmployeeDocumentsRepository
 ) : EmployeeDocumentsBaseService {
 
     companion object {
@@ -22,61 +22,63 @@ class EmployeeDocumentServiceImpl @Autowired constructor(
 
     @Throws(ServiceException::class)
     override fun create(entity: EmployeeDocumentsEntity): EmployeeDocumentsEntity? {
-        try {
-            return repository.save(entity)
+        return try {
+            repository.save(entity)
         } catch (e: Exception) {
-            logAndThrowServiceException("An error occurred while saving the new employee", e)
+            logServiceRelatedError("An error occurred while saving the new employee", e)
+            null
         }
-        return null
     }
 
     @Throws(ServiceException::class)
     override fun update(id: Long, entity: EmployeeDocumentsEntity): EmployeeDocumentsEntity? {
-        try {
+        return try {
             entity.id = id
-            return repository.save(entity)
+            repository.save(entity)
         } catch (e: Exception) {
-            logAndThrowServiceException("An error occurred while updating the employee", e)
+            logServiceRelatedError("An error occurred while updating the employee", e)
+            null
         }
-        return null
     }
 
     @Throws(ServiceException::class)
     override fun findById(id: Long): EmployeeDocumentsEntity? {
-        try {
-            return repository.findById(id).orElseThrow { EntityNotFoundException(MESSAGE_NOT_FOUND + id) }
+        return try {
+            findOriginalEntityOrThrowEntityNotFoundException(id)
         } catch (e: Exception) {
-            logAndThrowServiceException("An error occurred while locating an employee by ID -> $id", e)
+            logServiceRelatedError("An error occurred while locating an employee by ID -> $id", e)
+            null
         }
-        return null
     }
 
     @Throws(ServiceException::class)
     override fun findAll(): MutableList<EmployeeDocumentsEntity>? {
-        try {
-            return repository.findAll().toMutableList()
+        return try {
+            repository.findAll().toMutableList()
         } catch (e: Exception) {
-            logAndThrowServiceException("An error occurred while retrieving all users", e)
+            logServiceRelatedError("An error occurred while retrieving all users", e)
+            null
         }
-        return null
     }
 
     @Throws(ServiceException::class)
     override fun deleteById(id: Long): EmployeeDocumentsEntity? {
-        try {
-            val originalDocument = repository.findById(id)
-                .orElseThrow { EntityNotFoundException(MESSAGE_NOT_FOUND + id) }
+        return try {
+            val originalDocument = findOriginalEntityOrThrowEntityNotFoundException(id)
             repository.deleteById(id)
-            return originalDocument
+            originalDocument
         } catch (e: Exception) {
-            logAndThrowServiceException("An error occurred while deleting an employee by ID: $id", e)
+            logServiceRelatedError("An error occurred while deleting an employee by ID: $id", e)
+            null
         }
-        return null
     }
 
-    @Throws(ServiceException::class)
-    fun logAndThrowServiceException(error: String, e: Exception) {
+    override fun logServiceRelatedError(error: String, e: Exception) {
         log.error("$error: {}", e.message, e)
-        throw ServiceException(error, e)
+    }
+
+    override fun findOriginalEntityOrThrowEntityNotFoundException(id: Long): EmployeeDocumentsEntity? = run {
+        repository.findById(id)
+            .orElseThrow { EntityNotFoundException(MESSAGE_NOT_FOUND + id) }
     }
 }
