@@ -1,6 +1,6 @@
-package com.example.employeeapi.db.services
+package com.example.employee_api.db.services
 
-import com.example.employeeapi.db.entities.BaseEntity
+import com.example.employee_api.db.entities.BaseEntity
 import jakarta.persistence.EntityNotFoundException
 import org.hibernate.service.spi.ServiceException
 import org.springframework.dao.DataIntegrityViolationException

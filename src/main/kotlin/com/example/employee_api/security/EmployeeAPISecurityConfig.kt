@@ -1,6 +1,6 @@
-package com.example.employeeapi.security
+package com.example.employee_api.security
 
-import com.example.employeeapi.configuration.EmployeeAPIConfiguration
+import com.example.employee_api.configuration.EmployeeAPIConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity

@@ -1,4 +1,4 @@
-package com.example.employeeapi.dto
+package com.example.employee_api.dto
 
 import java.time.LocalDate
 

@@ -1,4 +1,4 @@
-package com.example.employeeapi.db.entities
+package com.example.employee_api.db.entities
 
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection

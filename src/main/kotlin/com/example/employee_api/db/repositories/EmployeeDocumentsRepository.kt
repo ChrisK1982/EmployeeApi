@@ -1,6 +1,6 @@
-package com.example.employeeapi.db.repositories
+package com.example.employee_api.db.repositories
 
-import com.example.employeeapi.db.entities.EmployeeDocumentsEntity
+import com.example.employee_api.db.entities.EmployeeDocumentsEntity
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 

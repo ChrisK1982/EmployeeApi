@@ -1,4 +1,4 @@
-package com.example.employeeapi.configuration
+package com.example.employee_api.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

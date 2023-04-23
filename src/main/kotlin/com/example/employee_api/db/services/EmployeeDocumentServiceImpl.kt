@@ -1,7 +1,7 @@
-package com.example.employeeapi.db.services
+package com.example.employee_api.db.services
 
-import com.example.employeeapi.db.entities.EmployeeEntity
-import com.example.employeeapi.db.repositories.EmployeesRepository
+import com.example.employee_api.db.entities.EmployeeDocumentsEntity
+import com.example.employee_api.db.repositories.EmployeeDocumentsRepository
 import jakarta.persistence.EntityNotFoundException
 import org.hibernate.service.spi.ServiceException
 import org.slf4j.Logger
@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class EmployeeServiceImpl @Autowired constructor(
-        private val repository: EmployeesRepository
-) : EmployeeBaseService {
+class EmployeeDocumentServiceImpl @Autowired constructor(
+        private val repository: EmployeeDocumentsRepository
+) : EmployeeDocumentsBaseService {
 
     companion object {
         const val MESSAGE_NOT_FOUND = "There is no member found with id: "
@@ -21,7 +21,7 @@ class EmployeeServiceImpl @Autowired constructor(
     private val log: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Throws(ServiceException::class)
-    override fun create(entity: EmployeeEntity): EmployeeEntity? {
+    override fun create(entity: EmployeeDocumentsEntity): EmployeeDocumentsEntity? {
         try {
             return repository.save(entity)
         } catch (e: Exception) {
@@ -31,7 +31,7 @@ class EmployeeServiceImpl @Autowired constructor(
     }
 
     @Throws(ServiceException::class)
-    override fun update(id: Long, entity: EmployeeEntity): EmployeeEntity? {
+    override fun update(id: Long, entity: EmployeeDocumentsEntity): EmployeeDocumentsEntity? {
         try {
             entity.id = id
             return repository.save(entity)
@@ -42,7 +42,7 @@ class EmployeeServiceImpl @Autowired constructor(
     }
 
     @Throws(ServiceException::class)
-    override fun findById(id: Long): EmployeeEntity? {
+    override fun findById(id: Long): EmployeeDocumentsEntity? {
         try {
             return repository.findById(id).orElseThrow { EntityNotFoundException(MESSAGE_NOT_FOUND + id) }
         } catch (e: Exception) {
@@ -52,7 +52,7 @@ class EmployeeServiceImpl @Autowired constructor(
     }
 
     @Throws(ServiceException::class)
-    override fun findAll(): MutableList<EmployeeEntity>? {
+    override fun findAll(): MutableList<EmployeeDocumentsEntity>? {
         try {
             return repository.findAll().toMutableList()
         } catch (e: Exception) {

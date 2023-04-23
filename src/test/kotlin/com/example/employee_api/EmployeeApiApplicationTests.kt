@@ -1,4 +1,4 @@
-package com.example.employeeapi
+package com.example.employee_api
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
