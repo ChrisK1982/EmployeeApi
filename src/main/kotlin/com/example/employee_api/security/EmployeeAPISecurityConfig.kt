@@ -17,22 +17,23 @@ class EmployeeAPISecurityConfig(val apiConfiguration: EmployeeAPIConfiguration) 
     @Bean
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         httpSecurity
-                .authorizeHttpRequests { auth ->
-                    auth
-                            .anyRequest()
-                            .authenticated()
-                }
-                .httpBasic()
+            .csrf().disable()
+            .authorizeHttpRequests()
+            .requestMatchers("/api/**").hasRole("EmployeeAPIUser")
+            .anyRequest()
+            .authenticated()
+            .and()
+            .httpBasic()
         return httpSecurity.build()
     }
 
     @Bean
     fun userDetailsService(): InMemoryUserDetailsManager {
         val user = User
-                .withUsername(apiConfiguration.basicAuthUsername)
-                .password(passwordEncoder().encode(apiConfiguration.basicAuthPassword))
-                .roles("EmployeeAPIUser")
-                .build()
+            .withUsername(apiConfiguration.basicAuthUsername)
+            .password(passwordEncoder().encode(apiConfiguration.basicAuthPassword))
+            .roles("EmployeeAPIUser")
+            .build()
 
         return InMemoryUserDetailsManager(user)
     }

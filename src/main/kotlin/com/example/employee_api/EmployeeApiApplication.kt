@@ -4,12 +4,15 @@ import com.example.employee_api.db.entities.EmployeeDocumentsEntity
 import com.example.employee_api.db.entities.EmployeeEntity
 import com.example.employee_api.db.services.EmployeeDocumentServiceImpl
 import com.example.employee_api.db.services.EmployeeServiceImpl
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.boot.json.GsonJsonParser
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -21,6 +24,15 @@ class EmployeeApiApplication @Autowired constructor(
     val employeeServiceImpl: EmployeeServiceImpl,
     val employeeDocumentServiceImpl: EmployeeDocumentServiceImpl
 ) {
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            runApplication<EmployeeApiApplication>(*args)
+        }
+
+        val logger = LoggerFactory.getLogger(EmployeeApiApplication::class.java)
+    }
 
     @GetMapping
     fun rootHandler(): String {
@@ -78,12 +90,5 @@ class EmployeeApiApplication @Autowired constructor(
     @DeleteMapping("/documents/{id}")
     fun deleteEmployeeDocuments(@PathVariable("id") id: Long): EmployeeDocumentsEntity? {
         return employeeDocumentServiceImpl.deleteById(id)
-    }
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            runApplication<EmployeeApiApplication>(*args)
-        }
     }
 }
