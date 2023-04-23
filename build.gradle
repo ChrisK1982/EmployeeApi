@@ -36,6 +36,9 @@ dependencies {
     testImplementation 'org.springframework.integration:spring-integration-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 }
 
 tasks.withType(KotlinCompile).configureEach {
@@ -43,6 +46,7 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs = ['-Xjsr305=strict']
         jvmTarget = '17'
     }
+    inputs.files(tasks.named('processResources'))
 }
 
 tasks.named('test') {

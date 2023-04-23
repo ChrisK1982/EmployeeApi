@@ -1,0 +1,3 @@
+api:
+  basicAuthUsername: "user"
+  basicAuthPassword: "password"
