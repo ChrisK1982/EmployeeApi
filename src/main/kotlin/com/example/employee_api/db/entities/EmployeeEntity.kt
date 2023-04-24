@@ -16,5 +16,5 @@ class EmployeeEntity : BaseEntity() {
     var hireDate: LocalDate? = null
     var department: String? = null
     var jobTitle: String? = null
-    var salary: Double = 0.0
+    var salary: Double? = null
 }

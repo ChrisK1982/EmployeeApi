@@ -11,5 +11,5 @@ import org.hibernate.annotations.DynamicUpdate
 @Table(name = "employee_documents")
 class EmployeeDocumentsEntity : BaseEntity() {
     @ElementCollection
-    lateinit var documents: Map<Long, String>
+    var documents: Map<Long, String>? = null
 }

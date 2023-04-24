@@ -51,15 +51,6 @@ abstract class AbstractEmployeeAPIRouteController<T : Any, R : JpaRepository<T, 
     fun batchCreateEntities(@RequestBody @Valid entities: MutableList<T>): StandardResponse<Optional<List<T>>> =
         run { saveEntities(entities) }
 
-    @PatchMapping(path = ["/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateAnEntity(@RequestBody @Valid @JsonMerge entity: T): StandardResponse<Optional<T>> = run {
-        saveEntity(entity)
-    }
-
-    @PatchMapping(path = ["/batch/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun batchUpdateEntities(@RequestBody @Valid @JsonMerge entities: MutableList<T>): StandardResponse<Optional<List<T>>> =
-        run { saveEntities(entities) }
-
     private fun saveEntities(entities: MutableList<T>): StandardResponse<Optional<List<T>>> {
         return try {
             StandardResponse(Optional.of(repository.saveAll(entities)), "New entities successfully saved.")
@@ -77,6 +68,10 @@ abstract class AbstractEmployeeAPIRouteController<T : Any, R : JpaRepository<T, 
             logger.error("An error occurred while attempting to save a new entity to the DB: {}", e.message, e)
             StandardResponse(Optional.empty(), "An invalid create employee request was sent. Please try again later.")
         }
+    }
+
+    private fun mapPartialEntities(update: T, original: T) {
+
     }
 
     @DeleteMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])

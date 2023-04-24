@@ -7,7 +7,6 @@ import com.example.employee_api.utils.LocalDateTypeAdapter
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -114,17 +113,17 @@ class AbstractEmployeeRouteControllerTest
 
     @Test
     fun `Given an employee entity exists in the db, when an update employee request is made with a valid employee, then the api responds with an updated entity message`() {
-        val testUserToUpdate = testUsers[0]
-        employeesRepository.save(testUserToUpdate)
+        val testEmployeeToUpdate = testUsers[0]
+        val savedEmployee = employeesRepository.save(testEmployeeToUpdate)
 
         val updatedFirstName = "NewFirstName"
-        testUserToUpdate.firstName = updatedFirstName
+        testEmployeeToUpdate.firstName = updatedFirstName
 
         mockMvc.perform(
-            patch("/api/employees/update")
+            patch("/api/employees/update/${savedEmployee.id}")
                 .with(httpBasic("user", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(gson.toJson(testUserToUpdate))
+                .content(gson.toJson(testEmployeeToUpdate))
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.entity.firstName").value(updatedFirstName))
