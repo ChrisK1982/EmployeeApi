@@ -7,10 +7,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.http.MediaType
+import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import kotlin.math.log
 
+@Async
 abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(private val repository: R) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(AbstractEmployeeRouter::class.java)
