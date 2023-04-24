@@ -4,10 +4,12 @@ import com.example.employee_api.db.entities.EmployeeEntity
 import com.example.employee_api.db.repositories.EmployeesRepository
 import com.example.employee_api.dto.StandardResponse
 import org.springframework.http.MediaType
+import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
 import java.util.*
 import kotlin.reflect.full.memberProperties
 
+@Async
 @RestController
 @RequestMapping(path = ["/api/employees"])
 class EmployeeRouteController(val employeesRepository: EmployeesRepository) :
