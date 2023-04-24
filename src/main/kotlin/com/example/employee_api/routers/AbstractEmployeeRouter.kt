@@ -6,9 +6,11 @@ import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.*
 import kotlin.math.log
 
@@ -30,12 +32,21 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
             logger.info("A request to retrieve an entity is being processed for ID: $id")
             val employee = repository.findById(id)
             if (employee.isEmpty)
-                StandardResponse(Optional.empty(), "No entity for ID: $id could be located.")
+                throw EntityNotFoundException("No entity for ID: $id could be located.")
             else
                 StandardResponse(employee, "An entity for ID: $id was located.")
+        } catch (e: EntityNotFoundException) {
+            logger.error("An error occurred while attempting to locate an entity for ID -> $id: {}", e.message, e)
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "An error occurred while attempting to locate entity for ID -> $id: ${e.message}"
+            )
         } catch (e: IllegalArgumentException) {
             logger.error("An error occurred when retrieving an entity: {}", e.message, e)
-            StandardResponse(Optional.empty(), "An error occurred while attempting to retrieve your entity.")
+            throw ResponseStatusException(
+                HttpStatus.BAD_GATEWAY,
+                "An error occurred while attempting to retrieve your entity with ID: $id"
+            )
         }
     }
 
@@ -58,17 +69,29 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
             StandardResponse(Optional.of(repository.saveAll(entities)), "New entities successfully saved.")
         } catch (e: Exception) {
             logger.error("An error occurred while saving entities to the DB: {}", e.message, e)
-            StandardResponse(Optional.empty(), "An error occurred while attempted to save the entities to the DB.")
+            throw ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An error occurred while attempted to save entities to the DB."
+            )
         }
     }
 
     private fun addNewEntity(entity: T): StandardResponse<Optional<T>> {
         return try {
             logger.info("Processing a request to create a new entity.")
-            StandardResponse(Optional.of(repository.save(entity)), "Your request was serviced succesfully.")
-        } catch (e: Exception) {
+            StandardResponse(Optional.of(repository.save(entity)), "Your request was serviced successfully.")
+        } catch (e: IllegalArgumentException) {
             logger.error("An error occurred while attempting to save a new entity to the DB: {}", e.message, e)
-            StandardResponse(Optional.empty(), "An invalid create employee request was sent. Please try again later.")
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "An error occurred while attempting to save your entity. ${e.message}"
+            )
+        } catch (e: Exception) {
+            logger.error("An error occurred while saving an entity to the DB: {}", e.message, e)
+            throw ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An error occurred while attempting to save an entity to the DB."
+            )
         }
     }
 
@@ -84,12 +107,25 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
 
             StandardResponse(deleted, "An entity for ID: $id was successfully deleted.")
         } catch (e: EntityNotFoundException) {
-            logger.error("${e.message}")
-            StandardResponse(Optional.empty(), "${e.message}")
+            logger.error("An error occurred while attempting to locate an entity for deletion: {}", e.message, e)
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "An error occurred while attempting to locate the entity for deletion: ${e.message}"
+            )
+        } catch (e: IllegalArgumentException) {
+            logger.error(
+                "An illegal argument exception occurred while attempting to delete an entity: {}",
+                e.message,
+                e
+            )
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "An invalid argument was passed as part of a delete entity request: ${e.message}"
+            )
         } catch (e: Exception) {
             logger.error("An error occurred while attempting to delete an entity: {}", e.message, e)
-            StandardResponse(
-                Optional.empty(),
+            throw ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
                 "An error occurred while attempting to delete the entity for ID: $id. Please try again later."
             )
         }
@@ -101,9 +137,24 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
             val entitiesToDelete = Optional.of(repository.findAllById(entityIds))
             repository.deleteAllById(entityIds)
             StandardResponse(entitiesToDelete, "Batch delete request was processed successfully.")
+        } catch (e: EntityNotFoundException) {
+            logger.error("An error occurred while attempting to locate an entities for deletion: {}", e.message, e)
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "An error occurred while attempting to locate entities for deletion: ${e.message}"
+            )
+        } catch (e: IllegalArgumentException) {
+            logger.error("An illegal argument exception occurred while attempting to some entities: {}", e.message, e)
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "An invalid argument was passed as part of a batch delete entity request: ${e.message}"
+            )
         } catch (e: Exception) {
-            logger.error("An error occurred during a batch deletion operation: {}", e.message, e)
-            StandardResponse(Optional.empty(), "An error occurred while processing the batch deletion request for IDs: $entityIds")
+            logger.error("An error occurred while attempting to delete an entity: {}", e.message, e)
+            throw ResponseStatusException(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An error occurred while attempting to batch delete the entities. Please try again later."
+            )
         }
     }
 }
