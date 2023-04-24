@@ -1,15 +1,14 @@
 package com.example.employee_api.routers
 
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.function.RouterFunction
-import org.springframework.web.servlet.function.ServerResponse
-import org.springframework.web.servlet.function.router
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
-@Configuration
+@RestController
+@RequestMapping(produces = ["application/text", "application/json"])
 class EmployeeApiRootRouter {
-    @Bean
-    fun apiRootRoutes(): RouterFunction<ServerResponse> = router {
-        GET("/api") { ServerResponse.ok().body("OK") }
+    @GetMapping(path = ["/api"])
+    fun rootHandler(): String {
+        return "OK"
     }
 }
