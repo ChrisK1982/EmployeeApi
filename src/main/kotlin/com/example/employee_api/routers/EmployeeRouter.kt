@@ -5,6 +5,7 @@ import com.example.employee_api.db.repositories.EmployeesRepository
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.function.RouterFunction
 import org.springframework.web.servlet.function.ServerRequest
@@ -76,11 +77,12 @@ class EmployeeRouter(val employeesRepository: EmployeesRepository) {
         }
     }
 
-    fun routes(): RouterFunction<ServerResponse> = router {
-        GET("/") { serverRequest -> getAllEmployees(serverRequest) }
-        GET("/{id}") { serverRequest -> getEmployeeById(serverRequest) }
-        POST("/create") { serverRequest: ServerRequest -> createAnEmployee(serverRequest) }
-        PUT("/update") { serverRequest: ServerRequest -> updateAnEmployee(serverRequest) }
-        DELETE("/{id}") { serverRequest: ServerRequest -> deleteAnEmployee(serverRequest) }
+    @Bean
+    fun employeeApiRoutes(): RouterFunction<ServerResponse> = router {
+        GET("/api/employees/") { serverRequest -> getAllEmployees(serverRequest) }
+        GET("/api/employees/{id}") { serverRequest -> getEmployeeById(serverRequest) }
+        POST("/api/employees/create") { serverRequest: ServerRequest -> createAnEmployee(serverRequest) }
+        PUT("/api/employees/update") { serverRequest: ServerRequest -> updateAnEmployee(serverRequest) }
+        DELETE("/api/employees/{id}") { serverRequest: ServerRequest -> deleteAnEmployee(serverRequest) }
     }
 }

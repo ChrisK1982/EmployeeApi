@@ -1,11 +1,11 @@
 package com.example.employee_api.routers
 
 import com.example.employee_api.db.entities.EmployeeDocumentsEntity
-import com.example.employee_api.db.entities.EmployeeEntity
 import com.example.employee_api.db.repositories.EmployeeDocumentsRepository
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.function.RouterFunction
 import org.springframework.web.servlet.function.ServerRequest
@@ -77,11 +77,12 @@ class EmployeeDocumentRouter(val employeesDocumentsRepository: EmployeeDocuments
         }
     }
 
-    fun routes(): RouterFunction<ServerResponse> = router {
-        GET("/") { serverRequest -> getAllEmployeesDocuments(serverRequest) }
-        GET("/{id}") { serverRequest -> getEmployeeDocumentsById(serverRequest) }
-        POST("/create") { serverRequest: ServerRequest -> createAnEmployeesDocuments(serverRequest) }
-        PUT("/update") { serverRequest: ServerRequest -> updateAnEmployeesDocuments(serverRequest) }
-        DELETE("/{id}") { serverRequest: ServerRequest -> deleteAnEmployeesDocuments(serverRequest) }
+    @Bean
+    fun employeeDocumentsApiRoutes(): RouterFunction<ServerResponse> = router {
+        GET("/api/documents/") { serverRequest -> getAllEmployeesDocuments(serverRequest) }
+        GET("/api/documents/{id}") { serverRequest -> getEmployeeDocumentsById(serverRequest) }
+        POST("/api/documents/create") { serverRequest: ServerRequest -> createAnEmployeesDocuments(serverRequest) }
+        PUT("/api/documents/update") { serverRequest: ServerRequest -> updateAnEmployeesDocuments(serverRequest) }
+        DELETE("/api/documents/{id}") { serverRequest: ServerRequest -> deleteAnEmployeesDocuments(serverRequest) }
     }
 }
