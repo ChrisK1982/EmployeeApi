@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.function.ServerResponse
 import java.util.*
+import kotlin.math.log
 
 abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(private val repository: R) {
     companion object {
@@ -22,7 +22,7 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
         return repository.findAll()
     }
 
-    @GetMapping(path = ["/{id}"],produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getEntityById(@PathVariable id: Long): StandardResponse<Optional<T>> {
         return try {
             logger.info("A request to retrieve an entity is being processed for ID: $id")
@@ -37,11 +37,28 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
         }
     }
 
-    @PostMapping(path = ["/create"],produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(path = ["/create"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun createAnEntity(@RequestBody @Valid entity: T): StandardResponse<Optional<T>> = run { addNewEntity(entity) }
 
-    @PutMapping(path = ["/update"],produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(path = ["/batch/create"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun batchCreateEntities(@RequestBody @Valid entities: List<T>): StandardResponse<Optional<List<T>>> =
+        run { saveEntities(entities) }
+
+    @PutMapping(path = ["/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun updateAnEntity(@RequestBody @Valid entity: T): StandardResponse<Optional<T>> = run { addNewEntity(entity) }
+
+    @PostMapping(path = ["/batch/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun batchUpdateEntities(@RequestBody @Valid entities: List<T>): StandardResponse<Optional<List<T>>> =
+        run { saveEntities(entities) }
+
+    private fun saveEntities(entities: List<T>): StandardResponse<Optional<List<T>>> {
+        return try {
+            StandardResponse(Optional.of(repository.saveAll(entities)), "New entities successfully saved.")
+        } catch (e: Exception) {
+            logger.error("An error occurred while saving entities to the DB: {}", e.message, e)
+            StandardResponse(Optional.empty(), "An error occurred while attempted to save the entities to the DB.")
+        }
+    }
 
     private fun addNewEntity(entity: T): StandardResponse<Optional<T>> {
         return try {
@@ -53,7 +70,7 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
         }
     }
 
-    @DeleteMapping(path = ["/{id}"],produces = [MediaType.APPLICATION_JSON_VALUE])
+    @DeleteMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun deleteAnEntity(@PathVariable id: Long): StandardResponse<Optional<T>> {
         return try {
             val deleted = repository.findById(id)
@@ -73,6 +90,18 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
                 Optional.empty(),
                 "An error occurred while attempting to delete the entity for ID: $id. Please try again later."
             )
+        }
+    }
+
+    @DeleteMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun batchDeleteEntities(@RequestBody entityIds: List<Long>): StandardResponse<Optional<List<T>>> {
+        return try {
+            val entitiesToDelete = Optional.of(repository.findAllById(entityIds))
+            repository.deleteAllById(entityIds)
+            StandardResponse(entitiesToDelete, "Batch delete request was processed successfully.")
+        } catch (e: Exception) {
+            logger.error("An error occurred during a batch deletion operation: {}", e.message, e)
+            StandardResponse(Optional.empty(), "An error occurred while processing the batch deletion request for IDs: $entityIds")
         }
     }
 }
