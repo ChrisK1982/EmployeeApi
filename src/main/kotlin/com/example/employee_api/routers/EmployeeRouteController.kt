@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(path = ["/api/employees"])
-class EmployeeRouter(employeesRepository: EmployeesRepository) :
-    AbstractEmployeeRouter<EmployeeEntity, EmployeesRepository>(employeesRepository)
+class EmployeeRouteController(employeesRepository: EmployeesRepository) :
+    AbstractEmployeeAPIRouteController<EmployeeEntity, EmployeesRepository>(employeesRepository)

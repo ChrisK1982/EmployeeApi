@@ -1,0 +1,20 @@
+[
+  {
+    "firstName": "Chris",
+    "lastName": "Kraus",
+    "email": "ckraus200982@gmail.com",
+    "hireDate": "2023-04-24",
+    "department": "IT",
+    "jobTitle": "Cloud Architect",
+    "salary": 5500.00
+  },
+  {
+    "firstName": "Bob",
+    "lastName": "Dylan",
+    "email": "billyBobDEE@gmail.com",
+    "hireDate": "2023-04-24",
+    "department": "ET",
+    "jobTitle": "Musician",
+    "salary": 2547.00
+  }
+]

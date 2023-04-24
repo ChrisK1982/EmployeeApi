@@ -12,6 +12,3 @@ data class Employee(
         val jobTitle: String? = null,
         val salary: Double? = null
 )
-
-
-

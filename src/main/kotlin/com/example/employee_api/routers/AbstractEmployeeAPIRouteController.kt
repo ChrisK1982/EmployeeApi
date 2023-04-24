@@ -1,6 +1,7 @@
 package com.example.employee_api.routers
 
 import com.example.employee_api.dto.StandardResponse
+import com.fasterxml.jackson.annotation.JsonMerge
 import jakarta.persistence.EntityNotFoundException
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -10,18 +11,22 @@ import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.web.bind.annotation.*
 import java.util.*
-import kotlin.math.log
 
 @Async
-abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(private val repository: R) {
+abstract class AbstractEmployeeAPIRouteController<T : Any, R : JpaRepository<T, Long>>(private val repository: R) {
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(AbstractEmployeeRouter::class.java)
+        val logger: Logger = LoggerFactory.getLogger(AbstractEmployeeAPIRouteController::class.java)
+    }
+
+    @ExceptionHandler(java.lang.Exception::class)
+    fun handleAllOtherErrors(e: Exception) : StandardResponse<Optional<T>> {
+        return StandardResponse(Optional.empty(), "An error occurred while attempting to service your request: ${e.cause}")
     }
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAllEntities(): List<T> {
+    fun getAllEntities(): StandardResponse<Optional<List<T>>> {
         logger.info("Retrieving all entities.")
-        return repository.findAll()
+        return StandardResponse(Optional.of(repository.findAll()), "All available entities successfully retrieved.")
     }
 
     @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -40,20 +45,22 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
     }
 
     @PostMapping(path = ["/create"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun createAnEntity(@RequestBody @Valid entity: T): StandardResponse<Optional<T>> = run { addNewEntity(entity) }
+    fun createAnEntity(@RequestBody @Valid entity: T): StandardResponse<Optional<T>> = run { saveEntity(entity) }
 
     @PostMapping(path = ["/batch/create"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun batchCreateEntities(@RequestBody @Valid entities: List<T>): StandardResponse<Optional<List<T>>> =
+    fun batchCreateEntities(@RequestBody @Valid entities: MutableList<T>): StandardResponse<Optional<List<T>>> =
         run { saveEntities(entities) }
 
-    @PutMapping(path = ["/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateAnEntity(@RequestBody @Valid entity: T): StandardResponse<Optional<T>> = run { addNewEntity(entity) }
+    @PatchMapping(path = ["/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun updateAnEntity(@RequestBody @Valid @JsonMerge entity: T): StandardResponse<Optional<T>> = run {
+        saveEntity(entity)
+    }
 
-    @PostMapping(path = ["/batch/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun batchUpdateEntities(@RequestBody @Valid entities: List<T>): StandardResponse<Optional<List<T>>> =
+    @PatchMapping(path = ["/batch/update"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun batchUpdateEntities(@RequestBody @Valid @JsonMerge entities: MutableList<T>): StandardResponse<Optional<List<T>>> =
         run { saveEntities(entities) }
 
-    private fun saveEntities(entities: List<T>): StandardResponse<Optional<List<T>>> {
+    private fun saveEntities(entities: MutableList<T>): StandardResponse<Optional<List<T>>> {
         return try {
             StandardResponse(Optional.of(repository.saveAll(entities)), "New entities successfully saved.")
         } catch (e: Exception) {
@@ -62,7 +69,7 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
         }
     }
 
-    private fun addNewEntity(entity: T): StandardResponse<Optional<T>> {
+    private fun saveEntity(entity: T): StandardResponse<Optional<T>> {
         return try {
             logger.info("Processing a request to create a new entity.")
             StandardResponse(Optional.of(repository.save(entity)), "Your request was serviced succesfully.")
@@ -96,7 +103,7 @@ abstract class AbstractEmployeeRouter<T : Any, R : JpaRepository<T, Long>>(priva
     }
 
     @DeleteMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun batchDeleteEntities(@RequestBody entityIds: List<Long>): StandardResponse<Optional<List<T>>> {
+    fun batchDeleteEntities(@RequestBody entityIds: MutableList<Long>): StandardResponse<Optional<List<T>>> {
         return try {
             val entitiesToDelete = Optional.of(repository.findAllById(entityIds))
             repository.deleteAllById(entityIds)
