@@ -15,7 +15,7 @@ open class BaseEntity : Serializable {
     var id: Long? = null
 
     @Column(name = "created_date", updatable = false)
-    var createdData: LocalDate? = LocalDate.now()
+    var createdDate: LocalDate? = LocalDate.now()
 
     @Column(name = "modified_date", updatable = true)
     var modificationDate: LocalDate? = LocalDate.now()

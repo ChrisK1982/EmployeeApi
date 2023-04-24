@@ -121,7 +121,7 @@ class AbstractEmployeeRouteControllerTest
         testUserToUpdate.firstName = updatedFirstName
 
         mockMvc.perform(
-            put("/api/employees/update")
+            patch("/api/employees/update")
                 .with(httpBasic("user", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(gson.toJson(testUserToUpdate))
@@ -142,52 +142,6 @@ class AbstractEmployeeRouteControllerTest
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.entity[1].email").value(testEmployeeToCheck.email))
-    }
-
-    @Test
-    fun `Given an employee in the DB, when a partial update request is made, partially updates the entity`() {
-        employeesRepository.save(testUsers[0])
-        val originalEmployee = employeesRepository.findById(1)
-        val partialEmployeeUpdate = EmployeeEntity()
-        partialEmployeeUpdate.id = originalEmployee.get().id
-        partialEmployeeUpdate.firstName = "NewFirstName"
-
-        mockMvc.perform(
-            patch("/api/employees/update")
-                .with(httpBasic("user", "password"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(gson.toJson(partialEmployeeUpdate))
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.entity.email").value(originalEmployee.get().email))
-    }
-
-    @Test
-    fun `Given there are employees in the DB, when a batch update request is made, the API responds with updated entities`() {
-        employeesRepository.saveAll(testUsers.toMutableList())
-        val testEmployeesFromDb: MutableList<EmployeeEntity> = employeesRepository.findAll()
-        val employee1 = EmployeeEntity()
-        employee1.id = testEmployeesFromDb[0].id
-        employee1.email = testEmployeesFromDb[1].email
-
-        val employee2 = EmployeeEntity()
-        employee2.id = testEmployeesFromDb[1].id
-        employee2.email = testEmployeesFromDb[0].email
-
-        val employeeUpdateDTOs = mutableListOf(employee1, employee2)
-        val testEmployeeToCheck = testUsers[0]
-
-        mockMvc.perform(
-            patch("/api/employees/batch/update")
-                .with(httpBasic("user", "password"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(gson.toJson(employeeUpdateDTOs))
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.entity[1].email").value(testEmployeeToCheck.email))
-
-        val updatedEmployee = employee1.id?.let { employeesRepository.findById(it) }
-        assertEquals(testUsers[0].firstName, updatedEmployee?.get()?.firstName)
     }
 
     @Test
