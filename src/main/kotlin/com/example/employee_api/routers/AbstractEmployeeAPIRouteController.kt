@@ -70,10 +70,6 @@ abstract class AbstractEmployeeAPIRouteController<T : Any, R : JpaRepository<T, 
         }
     }
 
-    private fun mapPartialEntities(update: T, original: T) {
-
-    }
-
     @DeleteMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun deleteAnEntity(@PathVariable id: Long): StandardResponse<Optional<T>> {
         return try {
